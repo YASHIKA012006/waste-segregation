@@ -1,0 +1,25 @@
+{% extends 'admin_base.html' %}
+{% block content %}
+<div class="admin-shell wrap">
+  {% include 'admin_sidebar.html' %}
+  <main class="admin-main dashboard">
+    <div class="dashboard-top"><div><span class="eyebrow">ADMIN DASHBOARD</span><h1>Welcome, <em>{{ session.get('name','Admin') }}</em></h1><p>Collection activity and waste sorting at a glance.</p></div><a class="button primary" href="{{ url_for('admin_requests') }}">Manage requests <span>→</span></a></div>
+    <section class="stat-grid admin-stat-grid">
+      <article class="stat-card"><small>Total users</small><strong>{{ stats.users }}</strong></article>
+      <article class="stat-card"><small>Total waste identified</small><strong>{{ stats.waste }}</strong></article>
+      <article class="stat-card"><small>Pending requests</small><strong>{{ stats.pending }}</strong></article>
+      <article class="stat-card"><small>Accepted requests</small><strong>{{ stats.accepted }}</strong></article>
+      <article class="stat-card"><small>Collected requests</small><strong>{{ stats.collected }}</strong></article>
+      <article class="stat-card"><small>Completed collections</small><strong>{{ stats.completed }}</strong></article>
+      <article class="stat-card"><small>Eco points awarded</small><strong>{{ stats.eco_points }}</strong></article>
+    </section>
+    <section class="admin-count-strip"><span><b>{{ stats.total_requests }}</b> total requests</span><span><b>{{ stats.collected }}</b> collected</span><span><b>{{ stats.rejected }}</b> rejected</span></section>
+    <div class="admin-grid">
+      <section class="table-panel chart-panel"><div class="panel-heading"><div><h2>Waste categories</h2><p>Classified records by category</p></div><a class="text-link" href="{{ url_for('admin_waste_records') }}">View records →</a></div>{% if chart_labels %}<canvas id="waste-chart"></canvas>{% else %}<div class="empty-inline">No waste has been identified yet.</div>{% endif %}</section>
+      <section class="table-panel"><div class="panel-heading"><div><h2>Quick links</h2><p>Manage the collection system</p></div></div><nav class="quick-links"><a href="{{ url_for('admin_requests') }}"><span>↗</span><div><b>Collection requests</b><small>{{ stats.pending }} awaiting review</small></div></a><a href="{{ url_for('admin_waste_records') }}"><span>♧</span><div><b>Waste records</b><small>Browse classifications</small></div></a><a href="{{ url_for('admin_users') }}"><span>♙</span><div><b>Users</b><small>View registered users</small></div></a></nav></section>
+    </div>
+    <section class="table-panel"><div class="panel-heading"><div><h2>Incoming collection requests</h2><p>Pending requests appear first.</p></div><a class="text-link" href="{{ url_for('admin_requests') }}">View all →</a></div><div class="admin-request-list">{% for item in requests %}{% with record=item %}{% include 'admin_request_card.html' %}{% endwith %}{% else %}<div class="empty-inline">No collection requests yet.</div>{% endfor %}</div></section>
+  </main>
+</div>
+{% if chart_labels %}<script>window.categoryLabels={{ chart_labels|tojson }};window.categoryValues={{ chart_counts|tojson }};</script>{% endif %}
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}{% block title %}My dashboard · SmartSort{% endblock %}{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static',filename='css/eco-rewards.css') }}">{% endblock %}{% block content %}
+<section class="dashboard wrap">
+  <div class="dashboard-top"><div><div class="eyebrow">YOUR SPACE</div><h1>Hello, {{ session.get('name','there') }} <em>👋</em></h1><p>Track your identifications, pickups and verified eco impact.</p></div><a class="button primary" href="{{ url_for('identify') }}">Identify Waste <span>↗</span></a></div>
+  <div class="stat-grid"><div class="stat-card"><span>✳</span><small>Total identified</small><strong>{{ stats.identified }}</strong></div><div class="stat-card"><span>↗</span><small>Collection requests</small><strong>{{ stats.requests }}</strong></div><div class="stat-card"><span>◷</span><small>Pending requests</small><strong>{{ stats.pending }}</strong></div><div class="stat-card"><span>✓</span><small>Completed</small><strong>{{ stats.completed }}</strong></div></div>
+  {% set next_name = 'Eco Starter' if eco_points < 25 else ('Green Recycler' if eco_points < 50 else ('Eco Champion' if eco_points < 100 else 'All badges unlocked')) %}
+  {% set next_target = 25 if eco_points < 25 else (50 if eco_points < 50 else (100 if eco_points < 100 else 100)) %}
+  {% set progress = [((eco_points / next_target * 100)|int), 100]|min %}
+  {% set points_needed = [next_target - eco_points, 0]|max %}
+  {% set current_badge = 'Eco Champion' if eco_points >= 100 else ('Green Recycler' if eco_points >= 50 else ('Eco Starter' if eco_points >= 25 else '')) %}
+  <section class="eco-rewards" aria-labelledby="eco-rewards-title">
+    <article class="eco-rewards-hero">
+      <div class="eco-hero-copy">
+        <span class="eco-hero-kicker"><span>✦</span> ECO REWARDS</span>
+        <h2 id="eco-rewards-title">Your sustainable actions matter.</h2>
+        <p class="eco-hero-label">Current Eco Points</p>
+        <div class="eco-hero-total"><span class="eco-coin" aria-hidden="true">✦</span><strong>{{ eco_points }}</strong></div>
+        <span class="eco-hero-unit">POINTS EARNED</span>
+        <div class="eco-hero-badge">🏅 <span>{{ eco_badge }}</span></div>
+      </div>
+      <div class="eco-hero-progress">
+        <div class="eco-progress-ring" style="--progress: {{ progress }}%" role="img" aria-label="{{ progress }} percent progress toward {{ next_name }}">
+          <div class="eco-ring-inner"><span class="eco-ring-icon">✦</span><strong>{{ progress }}<small>%</small></strong><span>{% if eco_points >= 100 %}BADGES EARNED{% else %}TO NEXT BADGE{% endif %}</span></div>
+        </div>
+        <p class="eco-ring-title">{{ next_name }}</p>
+        <p class="eco-ring-caption">{% if eco_points >= 100 %}{{ eco_points }} points earned{% else %}{{ eco_points }} / {{ next_target }} points{% endif %}</p>
+      </div>
+    </article>
+
+    <section class="eco-section" aria-labelledby="eco-achievements-title">
+      <div class="eco-section-heading"><div><span class="eco-section-kicker">MILESTONES</span><h2 id="eco-achievements-title">Your Eco Achievements</h2></div><span class="eco-section-note">Every verified action moves you forward.</span></div>
+      <div class="eco-badge-grid">
+        {% for badge_name, requirement, badge_icon in [('Eco Starter', 25, '✦'), ('Green Recycler', 50, '♻'), ('Eco Champion', 100, '♛')] %}
+          {% set unlocked = eco_points >= requirement %}
+          <article class="eco-achievement-card {% if unlocked %}is-unlocked{% else %}is-locked{% endif %} {% if current_badge == badge_name %}is-current{% endif %}">
+            <div class="eco-achievement-icon" aria-hidden="true">{{ badge_icon }}</div>
+            <div class="eco-achievement-copy"><span class="eco-achievement-status">{% if unlocked %}✓ UNLOCKED{% else %}🔒 LOCKED{% endif %}</span><h3>{{ badge_name }}</h3><p>{{ requirement }} points required</p></div>
+            {% if current_badge == badge_name %}<span class="eco-current-tag">CURRENT</span>{% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="eco-next-card" aria-labelledby="eco-next-title">
+      <div class="eco-next-heading"><span class="eco-next-icon">↗</span><div><span class="eco-section-kicker">KEEP GOING</span><h2 id="eco-next-title">Your Next Milestone</h2></div></div>
+      {% if points_needed > 0 %}
+        <div class="eco-milestone-summary"><span><small>Current</small><strong>{{ eco_points }} <small>points</small></strong></span><span class="eco-milestone-arrow">→</span><span><small>Next badge</small><strong>{{ next_name }}</strong></span><span class="eco-needed-pill">{{ points_needed }} more points</span></div>
+        <div class="eco-bar-track" role="img" aria-label="{{ progress }} percent progress toward {{ next_target }} points"><span style="--progress: {{ progress }}%"></span></div>
+        <p class="eco-milestone-caption">{{ points_needed }} more points to unlock {{ next_name }}.</p>
+      {% else %}
+        <div class="eco-maxed-message"><span>✦</span><p>All Eco badges unlocked. Keep making verified contributions to grow your points total.</p></div>
+        <div class="eco-bar-track" role="img" aria-label="All Eco badges unlocked"><span style="--progress: 100%"></span></div>
+      {% endif %}
+    </section>
+
+    <section class="eco-section eco-history-section" aria-labelledby="eco-history-title">
+      <div class="eco-section-heading"><div><span class="eco-section-kicker">YOUR ACTIVITY</span><h2 id="eco-history-title">Eco Points History</h2></div><span class="eco-section-note">Points are added after admin verification.</span></div>
+      <article class="eco-history-card">
+        {% if points_history %}
+          <div class="eco-history-head"><span>WASTE CATEGORY</span><span>DATE</span><span>VERIFICATION</span><span>POINTS EARNED</span></div>
+          <div class="eco-history-list">
+            {% for item in points_history %}
+              <div class="eco-history-row"><div class="eco-category-cell"><span class="eco-category-icon" aria-hidden="true">{% set cat = item.category|lower %}{% if cat in ['plastic', 'metal', 'paper', 'cardboard', 'battery', 'biological', 'clothes', 'shoes', 'trash'] %}{% if cat == 'plastic' %}♧{% elif cat == 'metal' %}⚙{% elif cat == 'paper' or cat == 'cardboard' %}▤{% elif cat == 'battery' %}▣{% elif cat == 'biological' %}♻{% elif cat == 'clothes' %}◇{% elif cat == 'shoes' %}◈{% else %}✦{% endif %}{% else %}♻{% endif %}</span><b>{{ item.category|replace('-', ' ')|title }}</b></div><span class="eco-history-date">{{ item.verified_at[:10] if item.verified_at else 'Verified' }}</span><span class="eco-verified-label"><i></i> Verified</span><strong class="eco-history-points">+{{ item.points_value }} <small>PTS</small></strong></div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="eco-history-empty"><span>✦</span><h3>No Eco Points earned yet.</h3><p>Complete a verified waste collection to start earning rewards.</p></div>
+        {% endif %}
+      </article>
+    </section>
+
+    <section class="eco-contribution" aria-labelledby="eco-contribution-title">
+      <div class="eco-section-heading"><div><span class="eco-section-kicker">SMALL ACTIONS, REAL PROGRESS</span><h2 id="eco-contribution-title">Your Contribution</h2></div><span class="eco-section-note">A snapshot of your verified activity.</span></div>
+      <div class="eco-contribution-grid"><article><span class="eco-contribution-icon recyclable">♻</span><small>Verified recyclable collections</small><strong>{{ stats.recyclable_items }}</strong></article><article><span class="eco-contribution-icon completed">✓</span><small>Completed waste collections</small><strong>{{ stats.completed }}</strong></article><article><span class="eco-contribution-icon points">✦</span><small>Total Eco Points earned</small><strong>{{ eco_points }}</strong></article></div>
+    </section>
+  </section>
+  <div class="table-panel" id="requests"><div class="panel-heading"><div><h2>My collection requests</h2><p>Track every collection from request to final verification.</p></div></div>{% if records %}<div class="user-request-list">{% for row in records %}<article class="user-request-card"><div class="user-request-head"><div><span class="eyebrow">REQUEST #{{ row.id }}</span><h3>{{ row.category|replace('-', ' ')|title }} · {{ row.quantity }}</h3><p>Pickup requested for {{ row.preferred_date }} · Suggested {{ row.suggested_recyclability|replace('-', ' ')|title }}{% if row.verified_recyclability %} · Verified {{ row.verified_recyclability|replace('-', ' ')|title }}{% endif %}</p></div><span class="status status-{{ row.status|lower }}">{{ row.status|title }}</span></div>{% if row.status == 'REJECTED' %}<div class="request-timeline rejected-timeline"><span class="timeline-done">✓ Request submitted</span><span class="timeline-current">Request rejected</span></div>{% else %}{% set steps = ['PENDING','ACCEPTED','COLLECTED','COMPLETED'] %}<div class="request-timeline">{% for step in steps %}{% set reached = steps.index(row.status) >= loop.index0 %}<div class="timeline-step {% if reached %}reached{% endif %} {% if row.status == step %}current{% endif %}"><span>{% if reached and row.status != step %}✓{% else %}{{ loop.index }}{% endif %}</span><small>{{ step|title }}</small></div>{% endfor %}</div>{% endif %}</article>{% endfor %}</div>{% else %}<div class="empty-state"><span>♧</span><h3>No collection requests yet</h3><p>Identify waste first. The request option appears with the AI result.</p><a class="button secondary" href="{{ url_for('identify') }}">Identify Waste</a></div>{% endif %}</div>
+</section>{% endblock %}

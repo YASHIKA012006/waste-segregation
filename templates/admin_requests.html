@@ -1,0 +1,21 @@
+{% extends 'admin_base.html' %}{% block title %}Collection Requests · Admin{% endblock %}{% block content %}
+<div class="admin-shell wrap">{% include 'admin_sidebar.html' %}<main class="admin-main dashboard">
+  <div class="dashboard-top"><div><span class="eyebrow">OPERATIONS</span><h1>Collection Requests</h1><p>Review requests and move each collection through its status.</p></div></div>
+  <form class="request-toolbar" id="request-search-form" method="get" action="{{ url_for('admin_requests') }}">
+    {% if active_status != 'ALL' %}<input type="hidden" name="status" value="{{ active_status }}">{% endif %}
+    <label class="search-field"><span aria-hidden="true">⌕</span><input id="request-search" name="q" value="{{ search }}" placeholder="Search request ID, user, email or category" aria-label="Search requests"></label>
+    <button class="button primary search-button" type="submit">Search</button>
+    {% if search %}<a class="button secondary clear-search" href="{% if active_status == 'ALL' %}{{ url_for('admin_requests') }}{% else %}{{ url_for('admin_requests',status=active_status) }}{% endif %}">Clear</a>{% endif %}
+  </form>
+  <nav class="status-filters" aria-label="Filter requests">
+    {% for value,label in [('ALL','All'),('PENDING','Pending'),('ACCEPTED','Accepted'),('COLLECTED','Collected'),('COMPLETED','Completed'),('REJECTED','Rejected')] %}
+      {% set filter_url = url_for('admin_requests') if value == 'ALL' and not search else url_for('admin_requests',q=search) if value == 'ALL' else url_for('admin_requests',status=value) if not search else url_for('admin_requests',status=value,q=search) %}
+      <a class="filter-chip {% if active_status == value %}active{% endif %}" href="{{ filter_url }}" {% if active_status == value %}aria-current="page"{% endif %}>{{ label }}</a>
+    {% endfor %}
+  </nav>
+  <section class="table-panel request-table-panel">
+    {% if records %}<div class="request-table-wrap"><table class="data-table request-table"><thead><tr><th>Request ID</th><th>User</th><th>Waste Category</th><th>AI Confidence</th><th>Suggested Recyclability</th><th>Verified Recyclability</th><th>Quantity</th><th>Phone</th><th>Address</th><th>Preferred Date</th><th>Request Date</th><th>Status</th><th>Eco Points</th><th>Actions</th></tr></thead><tbody>{% for record in records %}{% include 'admin_request_row.html' %}{% endfor %}</tbody></table></div>
+    {% else %}<div class="empty-state request-empty"><span>⌕</span><h3>No matching requests</h3><b>0 requests found</b><p>Try another filter or search term.</p></div>{% endif %}
+  </section>
+</main></div>
+{% endblock %}

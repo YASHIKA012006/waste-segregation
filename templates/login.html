@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Login · Smart Waste Segregation{% endblock %}
+{% block content %}
+<section class="auth-page auth-login-page" aria-label="Login">
+  <div class="auth-shell">
+    <section class="auth-brand-panel" aria-label="Smart Waste Segregation">
+      <a class="auth-brand" href="{{ url_for('index') }}" aria-label="Smart Waste Segregation home">
+        <span class="auth-brand-icon" aria-hidden="true">↻</span>
+        <span>SMART WASTE<small>SEGREGATION</small></span>
+      </a>
+      <div class="auth-brand-copy">
+        <p class="auth-brand-kicker">SMARTER CHOICES START HERE</p>
+        <h2>Identify.<br>Understand.<br><em>Recycle.</em></h2>
+        <p>AI-powered waste identification with smart disposal guidance and collection management.</p>
+      </div>
+      <div class="auth-orbit-art" aria-hidden="true">
+        <span class="auth-orbit auth-orbit-one"></span>
+        <span class="auth-orbit auth-orbit-two"></span>
+        <span class="auth-orbit-core">✳</span>
+        <span class="auth-art-chip auth-art-chip-one">AI&nbsp; • &nbsp;IDENTIFY</span>
+        <span class="auth-art-chip auth-art-chip-two">SORT&nbsp; • &nbsp;REUSE</span>
+      </div>
+      <p class="auth-brand-foot">A cleaner future, one thoughtful sort at a time.</p>
+    </section>
+
+    <section class="auth-form-panel" aria-labelledby="auth-title">
+      <div class="auth-form-content">
+        <p class="auth-form-kicker">WELCOME BACK</p>
+        <h1 id="auth-title">Welcome Back</h1>
+        <p class="auth-form-intro">Sign in to continue to your Smart Waste dashboard.</p>
+        <form method="post" class="auth-form">
+          <label for="login-email">Email</label>
+          <input id="login-email" type="email" name="email" autocomplete="email" placeholder="you@example.com" required>
+          <label for="login-password">Password</label>
+          <input id="login-password" type="password" name="password" autocomplete="current-password" placeholder="Enter your password" required>
+          <button class="auth-submit" type="submit">LOGIN <span aria-hidden="true">↗</span></button>
+        </form>
+        <p class="auth-form-footer">Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+        <a class="auth-admin-link" href="{{ url_for('admin_login') }}">Administrator? Use Admin Login</a>
+      </div>
+    </section>
+  </div>
+</section>
+{% endblock %}

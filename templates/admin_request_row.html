@@ -1,0 +1,24 @@
+<tr>
+  <td class="request-id-cell">#{{ record.id }}</td>
+  <td><b>{{ record.user_name }}</b><small class="table-subtext">{{ record.user_email }}</small></td>
+  <td>{{ record.category|replace('-', ' ')|title }}</td>
+  <td>{% if record.ai_confidence is not none %}{{ '%.2f'|format(record.ai_confidence * 100) }}%{% else %}—{% endif %}</td>
+  <td><span class="recyclability-inline {{ 'is-recyclable' if record.suggested_recyclability=='RECYCLABLE' else 'not-recyclable' }}">{{ record.suggested_recyclability|replace('-', ' ')|title }}</span></td>
+  <td>{% if record.verified_recyclability %}<span class="recyclability-inline {{ 'is-recyclable' if record.verified_recyclability=='RECYCLABLE' else 'not-recyclable' }}">{{ record.verified_recyclability|replace('-', ' ')|title }}</span>{% else %}<span class="table-muted">Not verified</span>{% endif %}</td>
+  <td>{{ record.quantity }}</td><td>{{ record.phone }}</td><td class="table-address">{{ record.address }}</td>
+  <td>{{ record.preferred_date }}</td><td>{{ record.created_at[:10] }}</td>
+  <td><span class="status status-{{ record.status|lower }}">{{ record.status|title }}</span></td>
+  <td>{% if record.points_awarded %}<b class="points-earned">+{{ record.points_value }}</b>{% else %}—{% endif %}</td>
+  <td class="table-actions">
+    {% if record.status == 'PENDING' %}
+      <form method="post" action="{{ url_for('update_status',request_id=record.id) }}"><input type="hidden" name="status" value="ACCEPTED"><button class="button primary small" type="submit">Accept</button></form>
+      <form method="post" action="{{ url_for('update_status',request_id=record.id) }}" onsubmit="return confirm('Reject collection request #{{ record.id }}?')"><input type="hidden" name="status" value="REJECTED"><button class="button reject small" type="submit">Reject</button></form>
+    {% elif record.status == 'ACCEPTED' %}
+      <form method="post" action="{{ url_for('update_status',request_id=record.id) }}"><input type="hidden" name="status" value="COLLECTED"><button class="button primary small" type="submit">Mark Collected</button></form>
+    {% elif record.status in ['COLLECTED','COMPLETED'] and not record.verified_recyclability %}
+      <form class="verify-form table-verify-form" method="post" action="{{ url_for('verify_recyclability',request_id=record.id) }}"><select name="verified_recyclability" aria-label="Verify recyclability for request {{ record.id }}" required><option value="">Verify...</option><option value="RECYCLABLE">Recyclable</option><option value="NON-RECYCLABLE">Non-Recyclable</option></select><button class="button primary small" type="submit">Save</button></form>
+    {% elif record.status == 'COLLECTED' and record.points_awarded %}
+      <form method="post" action="{{ url_for('update_status',request_id=record.id) }}"><input type="hidden" name="status" value="COMPLETED"><button class="button primary small" type="submit">Mark Completed</button></form>
+    {% else %}<span class="table-muted">—</span>{% endif %}
+  </td>
+</tr>

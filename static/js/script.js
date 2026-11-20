@@ -1,0 +1,12 @@
+document.addEventListener('DOMContentLoaded',()=>{
+  const toggle=document.querySelector('.menu-toggle'),links=document.querySelector('.nav-links');
+  const adminToggle=document.querySelector('.admin-menu-toggle'),adminSidebar=document.querySelector('.admin-sidebar');
+  if(adminToggle&&adminSidebar)adminToggle.addEventListener('click',()=>{const open=adminSidebar.classList.toggle('open');adminToggle.setAttribute('aria-expanded',String(open));adminToggle.setAttribute('aria-label',open?'Close admin navigation':'Open admin navigation')});
+  if(toggle&&links)toggle.addEventListener('click',()=>links.classList.toggle('open'));
+  const input=document.getElementById('image-input'),zone=document.getElementById('drop-zone'),preview=document.getElementById('image-preview'),form=document.getElementById('upload-form'),button=document.getElementById('analyze-button');
+  const showPreview=file=>{if(!file)return;if(!['image/jpeg','image/png','image/webp'].includes(file.type)){alert('Choose a JPG, PNG, or WEBP image.');input.value='';return}const url=URL.createObjectURL(file);preview.src=url;preview.hidden=false};
+  if(input){input.addEventListener('change',()=>showPreview(input.files[0]));zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('dragover')});zone.addEventListener('dragleave',()=>zone.classList.remove('dragover'));zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('dragover');if(e.dataTransfer.files.length){input.files=e.dataTransfer.files;showPreview(input.files[0])}});form.addEventListener('submit',()=>{button.disabled=true;button.innerHTML='Analyzing… <span class="spinner"></span>'})}
+  if(window.Chart&&document.getElementById('waste-chart'))new Chart(document.getElementById('waste-chart'),{type:'bar',data:{labels:window.categoryLabels.map(name=>name.replaceAll('-',' ').replace(/\b\w/g,ch=>ch.toUpperCase())),datasets:[{label:'Waste records',data:window.categoryValues,backgroundColor:['#274c7a','#436a9b','#6a82b1','#8a7bb4','#5973a0','#a295c4','#355c87','#6b90b8','#869cc0','#485f89','#9186ad','#6c7898'],borderRadius:6,maxBarThickness:34}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0},grid:{color:'#eef1ec'}},x:{grid:{display:false}}}}});
+  const requestSearch=document.getElementById('request-search'),requestSearchForm=document.getElementById('request-search-form');
+  if(requestSearch&&requestSearchForm)requestSearchForm.addEventListener('submit',()=>{if(!requestSearch.value.trim())requestSearch.disabled=true});
+});

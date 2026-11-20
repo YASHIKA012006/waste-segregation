@@ -1,0 +1,8 @@
+<aside class="admin-sidebar">
+  <div class="sidebar-label">ADMIN SPACE</div>
+  <a class="sidebar-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}" href="{{ url_for('admin_dashboard') }}"><span>⌂</span>Dashboard</a>
+  <a class="sidebar-link {% if request.endpoint == 'admin_requests' %}active{% endif %}" href="{{ url_for('admin_requests') }}"><span>↗</span>Collection Requests{% if admin_pending_count|default(0) %}<b class="sidebar-count">{{ admin_pending_count }}</b>{% endif %}</a>
+  <a class="sidebar-link {% if request.endpoint == 'admin_waste_records' %}active{% endif %}" href="{{ url_for('admin_waste_records') }}"><span>♧</span>Waste Records</a>
+  <a class="sidebar-link {% if request.endpoint == 'admin_users' %}active{% endif %}" href="{{ url_for('admin_users') }}"><span>♙</span>Users</a>
+  <a class="sidebar-link sidebar-logout" href="{{ url_for('logout') }}"><span>↪</span>Log out</a>
+</aside>
